@@ -40,3 +40,5 @@ The system was structured to be modular, making it easier to maintain and scale.
 #### **10\. CWE-285: Improper Authorization\*\*(Subtle Vulnerability)\*\***
 
 #### **11\. CWE-352: Cross-Site Request Forgery (CSRF)** 
+
+# **4- How to run the application**
