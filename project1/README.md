@@ -49,7 +49,7 @@ The system was structured to be modular, making it easier to maintain and scale.
 You must be in the correct directory, either app or app_sec folder
 
 ```bash
-python -m venv venv
+python -m venv env
 ```
 
 #### Activate and install requirements
