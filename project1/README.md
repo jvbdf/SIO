@@ -40,3 +40,44 @@ The system was structured to be modular, making it easier to maintain and scale.
 #### **10\. CWE-285: Improper Authorization\*\*(Subtle Vulnerability)\*\***
 
 #### **11\. CWE-352: Cross-Site Request Forgery (CSRF)** 
+
+# **4- How to run the application**
+
+
+
+#### Create Virtual environment
+You must be in the correct directory, either app or app_sec folder
+
+```bash
+python -m venv env
+```
+
+#### Activate and install requirements
+
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+```
+#### Create the Database
+
+In the activated terminal execute the following commands:
+
+```bash
+flask shell
+```
+Within the flask shell type:
+```bash
+db.create_all()
+from app.populate_db import create_all
+create all()
+quit()
+```
+#### Execute the application
+```bash
+flask- run -p <desired port here>
+```
+
+
+
+
+
