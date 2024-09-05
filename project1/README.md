@@ -52,15 +52,13 @@ You must be in the correct directory, either app or app_sec folder
 python -m venv env
 ```
 
-#### Activate and install requirements
-
+#### Activate the environment and then install requirements
 ```bash
-source env/bin/activate
 pip install -r requirements.txt
 ```
 #### Create the Database
 
-In the activated terminal execute the following commands:
+In the activated terminal execute the following commands in the /app folder (important):
 
 ```bash
 flask shell
