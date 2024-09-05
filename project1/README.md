@@ -42,3 +42,19 @@ The system was structured to be modular, making it easier to maintain and scale.
 #### **11\. CWE-352: Cross-Site Request Forgery (CSRF)** 
 
 # **4- How to run the application**
+
+
+
+#### Create Virtual environment
+
+```bash
+python3.11 -m venv venv
+```
+
+#### Activate and install requirements
+
+```bash
+source venv/bin/activate
+pip install -r requirements.txt
+```
+#### Create the Database
