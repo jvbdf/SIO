@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}My Reviews{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5">
+        <h2 class="fw-bold mb-4">Your Reviews</h2>
+        <div class="list-group">
+            {% if reviews %}
+                {% for review in reviews %}
+                    <div class="list-group-item list-group-item-action mb-3 rounded shadow-sm">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Product: <a href="{{ url_for('products.view', id=review.product_id) }}">{{ review.product.name }}</a></h5>
+                            <small>{{ review.date.strftime('%d-%m-%Y') }}</small>
+                        </div>
+                        <p class="mb-1">Rating: {{ review.rating }} / 5</p>
+                        <p class="mb-1">{{ review.comment }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="list-group-item list-group-item-action mb-3 rounded shadow-sm">
+                    <p class="mb-1">You have not posted any reviews yet.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
