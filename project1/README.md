@@ -46,9 +46,10 @@ The system was structured to be modular, making it easier to maintain and scale.
 
 
 #### Create Virtual environment
+You must be in the correct directory, either app or app_sec folder
 
 ```bash
-python3.11 -m venv venv
+python -m venv venv
 ```
 
 #### Activate and install requirements
@@ -58,3 +59,25 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 #### Create the Database
+
+In the activated terminal execute the following commands:
+
+```bash
+flask shell
+```
+Within the flask shell type:
+```bash
+db.create_all()
+from app.populate_db import create_all
+create all()
+quit()
+```
+#### Execute the application
+```bash
+flask- run -p <desired port here>
+```
+
+
+
+
+
