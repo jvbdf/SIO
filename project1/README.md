@@ -55,7 +55,7 @@ python -m venv env
 #### Activate and install requirements
 
 ```bash
-source venv/bin/activate
+source env/bin/activate
 pip install -r requirements.txt
 ```
 #### Create the Database
