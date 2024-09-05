@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <h2 class="fw-bold mb-4">Order Confirmation</h2>
+        
+        <!-- <div class="alert alert-success" role="alert">
+            Thank you for your purchase! Your order has been placed successfully.
+        </div> -->
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="fw-bold">Order Summary</h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Order Number:</strong> {{ order.id }}</p>
+                <p class="mb-2"><strong>Order Date:</strong> {{ order.date.strftime('%d %B %Y, %H:%M') }}</p>
+                <p class="mb-2"><strong>Shipping Address:</strong></p>
+                <p>{{ order.shipping_address }}</p>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h4 class="fw-bold">Items in Your Order</h4>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for item in order_items %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+
+                        <a href="{{ url_for('products.view', id=item.product.id) }}">
+                                <img src="{{ url_for('static', filename=item.product.image_url.split('static/', 1)[-1]) }}" 
+                                     alt="{{ item.product.name }}" 
+                                     class="img-fluid" 
+                                     style="width: 120px; height: auto; border-radius: 10px; margin-right: 20px;">
+                        </a>
+                        <div>
+                            <h5 class="fw-bold">{{ item.product.name }}</h5>
+                            <p class="mb-1">{{ item.product.description[:50] }}...</p>
+                            <p class="text-muted">Quantity: {{ item.quantity }}</p>
+                        </div>
+                    </div>
+                    <p class="text-muted">${{ item.product.price * item.quantity }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h4 class="fw-bold">Payment Summary</h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-2"><strong>Subtotal:</strong> {{ "%.2f" | format(subtotal) }} €</p>
+                <p class="mb-2"><strong>Tax:</strong> {{ "%.2f" | format(tax) }} €</p>
+                <p class="mb-2"><strong>Shipping:</strong> {{ "%.2f" | format(shipping) }} €</p>
+                <hr>
+                <h5 class="fw-bold">Total: {{ "%.2f" | format(total) }} €</h5>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="{{ url_for('products.products_page') }}" class="btn btn-primary">Continue Shopping</a>
+            <a href="{{ url_for('orders.repeat_order', order_id=order.id) }}" class="btn btn-success">Repeat Order</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<link rel="stylesheet" type="text/css" href="../static/css/profile.css">
+<style>
+    .profile-pic-container {
+        position: relative;
+        width: 300px; 
+        height: 300px;
+        margin: auto;
+    }
+
+    .profile-pic-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%; 
+        border: 5px solid #28a745; 
+        transition: opacity 0.3s ease;
+    }
+
+    .change-picture-btn, .change-btn {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: rgba(0, 123, 255, 0.8);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 25px;
+        font-size: 14px;
+        border: none;
+        display: none;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-align: center;
+    }
+
+    .profile-pic-container:hover .change-picture-btn {
+        display: block;
+    }
+
+    .profile-pic-container:hover img {
+        opacity: 0.7;
+    }
+
+    .change-picture-btn:hover, .change-btn:hover {
+        background-color: rgba(0, 123, 255, 1);
+    }
+
+    .custom-file-input {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container rounded mt-5 mb-5 h-100" style="background-color: #F5F5DC;">
+    <div class="row">
+        <div class="col-md-4 d-flex justify-content-center align-items-center">
+            <div class="profile-pic-container">
+                <img class="rounded-circle img-fluid" src="{{ user.profile_picture }}" alt="Profile Picture">
+                <form action="{{ url_for('profile.upload_profile_picture') }}" method="POST" enctype="multipart/form-data" id="profilePictureForm">
+                    <input type="file" class="custom-file-input" name="profile_picture" id="profilePictureInput" accept="image/*">
+                    <label for="profilePictureInput" class="change-picture-btn">Change Profile Picture</label>
+                </form>
+                
+                <script>
+                document.getElementById('profilePictureInput').addEventListener('change', function() {
+                    document.getElementById('profilePictureForm').submit();
+                });
+                </script>
+                
+            </div>
+        </div>
+
+        <div class="col-md-8 border-right">
+            <div class="p-3 py-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="text-right">Profile</h4>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <label class="labels">Name</label>
+                        <input type="text" class="form-control" placeholder="{{ user.name }}" readonly>
+                    </div>
+                    
+                </div>
+                <form action="/profile" method="POST" enctype="multipart/form-data">
+                    <div class="col-md-12">
+                        <label class="labels">Username</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="username" value="{{ user.username }}" readonly>
+                            <button class="btn btn-success" type="button" onclick="enableUsernameEdit()">Change</button>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <label class="labels">Email</label>
+                            <input type="text" class="form-control" placeholder="{{ user.email }}" readonly>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="labels">Address</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="address" value="{{ user.address }}" readonly>
+                                <button class="btn btn-success" type="button" onclick="enableAddressEdit()">Change</button>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="labels">Password</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" name="password" placeholder="*********" readonly>
+                                <button class="btn btn-success" type="button" data-bs-toggle="modal" id="changePasswordButton" data-bs-target="#passwordChangeModal">Change</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 text-center">
+                        <button type="submit" class="btn btn-primary profile-button" id="saveChangesButton">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="passwordChangeModal" tabindex="-1" aria-labelledby="passwordChangeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('profile.change_password') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordChangeModalLabel">Change Password</h5>
+                    <button type of button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" class="form-control" name="new_password" id="new_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" the="btn btn-primary">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function enableAddressEdit() {
+    const addressInput = document.querySelector('input[name="address"]');
+    addressInput.removeAttribute('readonly');
+    document.getElementById('saveChangesButton').classList.remove('d-none');
+}
+
+function enableUsernameEdit() {
+    const usernameInput = document.querySelector('input[name="username"]');
+    usernameInput.removeAttribute('readonly');
+    document.getElementById('saveChangesButton').classList.remove('d-none');
+}
+</script>
+{% endblock %}

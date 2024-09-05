@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin - Inventory Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-3">Inventory Management</h1>
+        </div>
+        <div class="col-md-4">
+            <form action="{{ url_for('admin.inventory_management') }}" method="GET" class="d-flex">
+                <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ search_term }}">
+                <button type="submit" class="btn btn-primary ms-2">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12 d-flex justify-content-between">
+            <form action="{{ url_for('admin.inventory_management') }}" method="GET" class="d-flex">
+                <select name="stock" class="form-select me-2" onchange="this.form.submit()">
+                    <option value="" {% if stock_filter == "" %}selected{% endif %}>All Stock</option>
+                    <option value="in_stock" {% if stock_filter == "in_stock" %}selected{% endif %}>In Stock</option>
+                    <option value="out_of_stock" {% if stock_filter == "out_of_stock" %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </form>
+
+            <div class="d-flex">
+                <label for="sort" class="me-2">Sort By:</label>
+                <form action="{{ url_for('admin.inventory_management') }}" method="GET" class="d-flex">
+                    <select name="sort" class="form-select me-2" onchange="this.form.submit()">
+                        <option value="name" {% if sort_by == "name" %}selected{% endif %}>Product Name</option>
+                        <option value="price" {% if sort_by == "price" %}selected{% endif %}>Price</option>
+                        <option value="quantity" {% if sort_by == "quantity" %}selected{% endif %}>Quantity</option>
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <table class="table table-hover table-bordered" style="background-color: white; border-radius: 15px; overflow: hidden;">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">
+                    <a href="{{ url_for('admin.inventory_management', search=search_term, stock=stock_filter, sort='name', order='asc' if (order == 'desc' or sort_by != 'name') else 'desc') }}">
+                        Product Name 
+                        {% if sort_by == 'name' %} 
+                            <i class="bi bi-arrow-{{ 'down' if order == 'desc' else 'up' }}"></i> 
+                        {% endif %}
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="{{ url_for('admin.inventory_management', search=search_term, stock=stock_filter, sort='price', order='asc' if (order == 'desc' or sort_by != 'price') else 'desc') }}">
+                        Price 
+                        {% if sort_by == 'price' %} 
+                            <i class="bi bi-arrow-{{ 'down' if order == 'desc' else 'up' }}"></i> 
+                        {% endif %}
+                    </a>
+                </th>
+                <th scope="col">
+                    <a href="{{ url_for('admin.inventory_management', search=search_term, stock=stock_filter, sort='quantity', order='asc' if (order == 'desc' or sort_by != 'quantity') else 'desc') }}">
+                        Quantity 
+                        {% if sort_by == 'quantity' %} 
+                            <i class="bi bi-arrow-{{ 'down' if order == 'desc' else 'up' }}"></i> 
+                        {% endif %}
+                    </a>
+                </th>
+                <th scope="col">Stock Status</th>
+                <th scope="col">Update Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products.items %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }} €</td>
+                <td>{{ product.quantity }}</td>
+                <td>
+                    {% if product.in_stock %}
+                    <span class="badge bg-success">In Stock</span>
+                    {% else %}
+                    <span class="badge bg-danger">Out of Stock</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{{ url_for('admin.update_inventory', product_id=product.id) }}" method="POST" class="d-flex">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input type="number" name="quantity" value="{{ product.quantity }}" min="0" class="form-control" style="width: 100px;" required>
+                        <button type="submit" class="btn btn-primary ms-2">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center">No products available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not products.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.inventory_management', page=products.prev_num, search=search_term, stock=stock_filter, sort=sort_by, order=order) }}" tabindex="-1">Previous</a>
+            </li>
+            {% for page_num in products.iter_pages() %}
+            <li class="page-item {% if products.page == page_num %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.inventory_management', page=page_num, search=search_term, stock=stock_filter, sort=sort_by, order=order) }}">{{ page_num }}</a>
+            </li>
+            {% endfor %}
+            <li class="page-item {% if not products.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('admin.inventory_management', page=products.next_num, search=search_term, stock=stock_filter, sort=sort_by, order=order) }}">Next</a>
+            </li>
+        </ul>
+    </nav>
+</div>
+{% endblock %}

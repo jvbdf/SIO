@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Deti Shop - Wishlist{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container px-4 px-lg-5 my-5">
+        <h2 class="fw-bold mb-4">Your Wishlist</h2>
+        
+        {% if wishlist_items %}
+        <div class="row">
+            {% for item in wishlist_items %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <a href="{{ url_for('products.view', id=item.product.id) }}">
+                        <img src="{{ url_for('static', filename=item.product.image_url.split('static/', 1)[-1]) }}" 
+                             alt="{{ item.product.name }}" 
+                             class="card-img-top img-fluid" 
+                             style="height: 250px; object-fit: cover;">
+                    </a>
+                    <div class="card-body text-center">
+                        <h5 class="card-title">{{ item.product.name }}</h5>
+                        <p class="card-text">${{ item.product.price }}</p>
+                        <div class="d-flex justify-content-center gap-2">
+                            <form action="{{ url_for('cart.add_to_cart', product_id=item.product.id) }}" method="POST">
+                                <button class="btn btn-primary" type="submit">Add to Cart</button>
+                            </form>
+                            <form action="{{ url_for('wishlists.remove_from_wishlist', product_id=item.product.id) }}" method="POST">
+                                <button class="btn btn-danger" type="submit">Remove</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>You have no items in your wishlist. <a href="{{ url_for('products.products_page') }}">Start adding some!</a></p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
