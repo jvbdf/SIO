@@ -1,5 +1,12 @@
+Report  \- **Project 2** 
 
-# Project Report: Deti Shop
+# **DETI SHOP**
+
+| Course: | SIO   |
+| :---- | :---- |
+| Date: | Aveiro, 05/09/2024 |
+| Student: | 106078 : João Vitor B. D. Ferreira  |
+
 
 ## 1. Introduction
 
@@ -58,3 +65,37 @@ We added a password strength meter, offering users real-time feedback as they ty
 The system now supports time-based one-time passwords (TOTP) as a secondary authentication method using pyotp.
 
 **Example:** After entering their username and password, a user scans a QR code with their authenticator app to complete the login using a time-sensitive six-digit code.
+
+# **4- How to run the application**
+
+
+
+#### Create Virtual environment
+You must be in the correct directory, either app_org or app_sec folder
+
+```bash
+python -m venv env
+```
+
+#### Activate the environment and then install requirements
+```bash
+pip install -r requirements.txt
+```
+#### Create the Database
+
+In the activated terminal execute the following commands in the /app folder (important):
+
+```bash
+flask shell
+```
+Within the flask shell type:
+```bash
+db.create_all()
+from app.populate_db import create_all
+create all()
+quit()
+```
+#### Execute the application
+```bash
+flask- run -p <desired port here>
+```
