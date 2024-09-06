@@ -12,6 +12,7 @@ from app.blueprints.reviews.routes import reviews
 from app.blueprints.admin.routes import admin_bp
 from app.blueprints.errors.routes import errors
 
+
 def create_app():
     app = Flask(__name__)
     
@@ -21,7 +22,7 @@ def create_app():
 
     return app
 
-from app.extensions import db,migrate, csrf
+from app.extensions import db,migrate, csrf, mail
 
 def create_app():
     app = Flask(__name__)
@@ -31,6 +32,7 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     csrf.init_app(app)
+    mail.init_app(app)
     
     app.register_blueprint(main)
     app.register_blueprint(auth)

@@ -2,6 +2,7 @@
 
 
 from functools import wraps
+import hashlib
 from flask import flash, redirect, session, url_for
 from app.blueprints.auth.models import User
 from app.blueprints.products.models import Product
@@ -67,6 +68,10 @@ def validate_password(password, confirm_password):
         flash("Password contains non-printable characters.", "error")
         return False
     
+    if is_password_breached(password):
+        flash("Password has been breached. Please choose a different password.", "error")
+        return False
+    
     return True
     
 
@@ -97,3 +102,25 @@ def validate_captcha(captcha_response):
     response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload)
     result = response.json()
     return result.get('success', False)
+
+
+def is_password_breached(password):
+    
+    pwd_hash = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+    
+    prefix = pwd_hash[:5]
+    suffix = pwd_hash[5:]
+    
+    url = f"https://api.pwnedpasswords.com/range/{prefix}"
+    
+    response = requests.get(url)
+    if response.status_code == 200:
+        if suffix in response.text:
+            return True
+    else:
+        flash("Error connecting to the breach database", 'error')
+        return False
+    return False
+
+
+    

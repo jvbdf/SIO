@@ -16,31 +16,9 @@
     <title>Deti Shop - Register</title>
 </head>
 <body>
-    <div class="container" >
-        {% with errors = get_flashed_messages(category_filter=["error"])%}
-        {% if errors %}
-        <div class="alert alert-danger alert-dismissible fade show">
-            {%- for msg in errors %}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            <i class="fas fa-exclamation-triangle"></i>
-            <strong>Warning!</strong> {{ msg }}<br>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
-        {% with errors = get_flashed_messages(category_filter=["success"])%}
-        {% if errors %}
-        <div class="alert alert-success alert-dismissible fade show">
-            {%- for msg in errors %}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            <i class="fas fa-check"></i>
-            <strong>Success!</strong> {{ msg }}<br>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endwith %}
-        
-        <div class="row" >
+    <div class="container">
+        <!-- Seus alertas e formulários anteriores -->
+        <div class="row">
             <div class="offset-md-2 col-lg-5 col-md-7 offset-lg-4 offset-md-3" style="margin-top: 50px;">
                 <div class="panel border bg-white">
                     <div class="panel-heading">
@@ -59,13 +37,15 @@
                                 <div class="input-field"> <span class="far fa-user-circle p-2"></span> <input type="text" name="username" placeholder="Username" required> </div>
                             </div>
                             <div class="form-group py-1 pb-2">
-                                <div class="input-field"> <span class="fas fa-lock px-2"></span> <input type="password" name="password" id="password" placeholder="Password" required> </div>
+                                <div class="input-field"> <span class="fas fa-lock px-2"></span> <input type="password" name="password" id="password" placeholder="Password" required oninput="checkPasswordStrength()"> </div>
+                                <!-- Medidor de força de senha -->
+                                <div class="progress mt-2" style="height: 5px;">
+                                    <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                                </div>
+                                <small id="password-strength-text" class="form-text text-muted"></small>
                             </div>
                             <div class="form-group py-1 pb-2">
                                 <div class="input-field"> <span class="fas fa-lock px-2"></span> <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required> </div>
-                            </div>
-                            <div class="form-group py-2">
-                                <div class="input-field"> <span class="fas fa-phone p-2"></span> <input type="text" name="phone" placeholder="Phone"> </div>
                             </div>
                             <div class="form-group py-2">
                                 <label for="profile_picture" class="form-label">Profile Picture</label>
@@ -86,10 +66,54 @@
             </div>
         </div>
     </div>
+    
+    <!-- Verificação de força de senha -->
     <script>
+        function checkPasswordStrength() {
+            var password = document.getElementById("password").value;
+            var strengthBar = document.getElementById("password-strength-bar");
+            var strengthText = document.getElementById("password-strength-text");
+            var strength = 0;
+
+            if (password.length >= 12) strength += 1; // Comprimento mínimo
+            if (/[A-Z]/.test(password)) strength += 1; // Letra maiúscula
+            if (/[a-z]/.test(password)) strength += 1; // Letra minúscula
+            if (/[0-9]/.test(password)) strength += 1; // Números
+            if (/[\W_]/.test(password)) strength += 1; // Caracteres especiais
+
+            switch (strength) {
+                case 0:
+                case 1:
+                    strengthBar.style.width = "20%";
+                    strengthBar.className = "progress-bar bg-danger";
+                    strengthText.textContent = "Very Weak";
+                    break;
+                case 2:
+                    strengthBar.style.width = "40%";
+                    strengthBar.className = "progress-bar bg-warning";
+                    strengthText.textContent = "Weak";
+                    break;
+                case 3:
+                    strengthBar.style.width = "60%";
+                    strengthBar.className = "progress-bar bg-info";
+                    strengthText.textContent = "Moderate";
+                    break;
+                case 4:
+                    strengthBar.style.width = "80%";
+                    strengthBar.className = "progress-bar bg-primary";
+                    strengthText.textContent = "Strong";
+                    break;
+                case 5:
+                    strengthBar.style.width = "100%";
+                    strengthBar.className = "progress-bar bg-success";
+                    strengthText.textContent = "Very Strong";
+                    break;
+            }
+        }
+
         var password = document.getElementById("password");
         var showPassword = document.getElementById("show");
-    
+
         showPassword.addEventListener("change", function () {
             if (showPassword.checked) {
                 password.type = "text";

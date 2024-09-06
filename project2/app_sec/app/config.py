@@ -12,4 +12,12 @@ class Config:
     
     RECAPTCHA_SITE_KEY = '6LcT7DcqAAAAAF7nPx7GtBgrt1Yv7yhAr550CgEp'
     RECAPTCHA_SECRET_KEY = '6LcT7DcqAAAAAA1OAO3HFCwz5PhJWnrgQFC0susN'
+    
+    # Configurações do Flask-Mail
+    MAIL_SERVER= 'smtp.gmail.com'
+    MAIL_PORT= 465
+    MAIL_USE_SSL= True
+    MAIL_USERNAME= 'detishop99@gmail.com'
+    MAIL_PASSWORD= 'smyk efpf najk syeu'
+    MAIL_DEFAULT_SENDER= 'detishop99@gmail.com'
 

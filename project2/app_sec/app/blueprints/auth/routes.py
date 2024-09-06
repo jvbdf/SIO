@@ -1,17 +1,21 @@
+import base64
 import hashlib
+from io import BytesIO
 import os
 from flask import Blueprint, flash, redirect, render_template, request, session,url_for
 from sqlalchemy import text
 from app.blueprints.auth.models import Role, User
 from app.blueprints.cart.models import Cart
 from app.config import Config
-from app.extensions import db
-from app.utils import allowed_file, login_user, logout_user, validate_email, validate_password, validate_phone, login_required, validate_captcha
+from app.extensions import db, mail
+from app.utils import get_user_by_id, allowed_file, login_user, logout_user, validate_email, validate_password, validate_phone, login_required, validate_captcha
 from werkzeug.utils import secure_filename
+from flask_mail import  Message
+import pyotp
+import qrcode
+
 auth = Blueprint('auth', __name__)
 
-
-    
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -28,8 +32,17 @@ def login():
             user = User.query.filter_by(email=email).first()
 
             if user.check_password(password):
-                login_user(user)
-                return redirect(url_for('products.products_page'))
+                
+                
+                if user.otp_enabled and user.otp_secret :
+                    
+                    session['username'] = user.username
+                    
+                    return redirect(url_for('auth.verify_totp'))
+                else:
+                    session['username'] = user.username
+                    return redirect(url_for('auth.enable_2fa'))
+            
             else:
                 flash('Login failed. Check your email and/or password.', 'error')
                 return redirect(url_for('auth.login'))
@@ -133,3 +146,61 @@ def logout():
     flash("Thanks for visiting our Shop! Bye!", "success")
     logout_user()
     return redirect(url_for('main.home'))
+
+@auth.route('/enable_2fa')
+def enable_2fa():
+    user = User.query.filter_by(username=session['username']).first()
+    
+    if user.otp_enabled:
+        flash('2FA is already enabled for your account.', 'error')
+        return redirect(url_for('profile.profile_page'))
+    
+    secret = pyotp.random_base32()
+    user.otp_secret = secret
+    db.session.commit()
+    
+    # Generate a QR code for the user to scan
+    totp = pyotp.TOTP(secret)
+    qr_url = totp.provisioning_uri(user.username, issuer_name='DETI Shop')
+    qr_img = qrcode.make(qr_url)
+    
+    # Convert the QR code to base64 for display
+    buffered = BytesIO()
+    qr_img.save(buffered, format="PNG")
+    qr_b64 = base64.b64encode(buffered.getvalue()).decode()
+    
+    return render_template('enable_2fa.html', qr_b64=qr_b64)
+
+@auth.route('/verify_totp',methods=['GET', 'POST'])
+def verify_totp():
+    if request.method == 'POST':
+        
+        totp_code = request.form['totp']
+        user = User.query.filter_by(username=session['username']).first()
+
+        # Verificar o código TOTP
+        totp = pyotp.TOTP(user.otp_secret)
+        
+        if totp.verify(totp_code):
+            login_user(user)
+            session.pop('username', None)  
+            return redirect(url_for('products.products_page'))
+        else:
+            flash('INVALID TOTP CODE','error')
+            return redirect(url_for('auth.verify_totp'))
+    
+    return render_template('verify_totp.html')
+
+
+# @auth.route('/send_email')
+# def send_email():
+#     msg = Message('Hello from Flask',
+#                   sender= Config.MAIL_DEFAULT_SENDER,
+#                   recipients=['jv_batistaaa@hotmail.com'])
+#     msg.body = 'This is a test email sent from a Flask application.'
+#     try:
+#         mail.send(msg)
+#         flash('Email sent successfully!', 'success')
+#     except Exception as e:
+#         flash(f'Error sending email: {str(e)}', 'error')
+#     return redirect(url_for('auth.login'))

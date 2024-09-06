@@ -22,6 +22,8 @@ class User(db.Model):
     phone = db.Column(db.String(20), nullable=True)
     
     address = db.Column(db.String(100))
+    otp_secret = db.Column(db.String(16))
+    otp_enabled = db.Column(db.Boolean, default=False)
     
     profile_picture = db.Column(db.String(200), nullable=True, default='static/img/profile_pics/default.jpg')
 
