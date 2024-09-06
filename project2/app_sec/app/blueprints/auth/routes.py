@@ -6,7 +6,7 @@ from app.blueprints.auth.models import Role, User
 from app.blueprints.cart.models import Cart
 from app.config import Config
 from app.extensions import db
-from app.utils import allowed_file, login_user, logout_user, validate_email, validate_password, validate_phone, login_required
+from app.utils import allowed_file, login_user, logout_user, validate_email, validate_password, validate_phone, login_required, validate_captcha
 from werkzeug.utils import secure_filename
 auth = Blueprint('auth', __name__)
 
@@ -22,15 +22,17 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
+        captcha_response = request.form['g-recaptcha-response']
+        
+        if validate_captcha(captcha_response):
+            user = User.query.filter_by(email=email).first()
 
-        user = User.query.filter_by(email=email).first()
-
-        if user.check_password(password):
-            login_user(user)
-            return redirect(url_for('products.products_page'))
-        else:
-            flash('Login failed. Check your email and/or password.', 'error')
-            return redirect(url_for('auth.login'))
+            if user.check_password(password):
+                login_user(user)
+                return redirect(url_for('products.products_page'))
+            else:
+                flash('Login failed. Check your email and/or password.', 'error')
+                return redirect(url_for('auth.login'))
 
     return render_template('login.html')
 
@@ -52,6 +54,7 @@ def register():
         confirm_password = request.form['confirm_password']
         phone = request.form['phone']
         file = request.files['profile_picture']
+        
         
         
         if not validate_email(email):
@@ -86,32 +89,36 @@ def register():
         else:
             flash('Invalid file type. Please upload an image.', 'error')
             return redirect(url_for('auth.register'))
+        
+        captcha_response = request.form['g-recaptcha-response']
+        
+        if validate_captcha(captcha_response):
                 
         
-        user_role = Role.query.filter_by(name='user').first()
-        
-   
-        new_user = User(
-            name=name, 
-            email=email, 
-            username=username, 
-            password= password, 
-            phone=phone, 
-            role_id= user_role.id,
-            profile_picture= file_path.replace("\\", "/")
-        )
-        new_user.set_password(password)
-        
-        db.session.add(new_user)
-        db.session.commit()
-        
-        cart = Cart(user_id=new_user.id)
-        db.session.add(cart)
-        
-        db.session.commit()
-        
-        flash('Registration successful! You can now login.', 'success')
-        return redirect(url_for('auth.login'))
+            user_role = Role.query.filter_by(name='user').first()
+            
+    
+            new_user = User(
+                name=name, 
+                email=email, 
+                username=username, 
+                password= password, 
+                phone=phone, 
+                role_id= user_role.id,
+                profile_picture= file_path.replace("\\", "/")
+            )
+            new_user.set_password(password)
+            
+            db.session.add(new_user)
+            db.session.commit()
+            
+            cart = Cart(user_id=new_user.id)
+            db.session.add(cart)
+            
+            db.session.commit()
+            
+            flash('Registration successful! You can now login.', 'success')
+            return redirect(url_for('auth.login'))
 
     return render_template('register.html')
 

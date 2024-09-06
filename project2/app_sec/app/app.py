@@ -9,4 +9,5 @@ from app.blueprints.reviews.models import Review
 app = create_app()
 
 if __name__ == '__main__':
+    
     app.run()

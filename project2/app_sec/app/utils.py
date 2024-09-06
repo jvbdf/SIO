@@ -5,7 +5,9 @@ from functools import wraps
 from flask import flash, redirect, session, url_for
 from app.blueprints.auth.models import User
 from app.blueprints.products.models import Product
+from app.config import Config
 import re
+import requests
 
 
 
@@ -50,28 +52,23 @@ def validate_password(password, confirm_password):
     if password != confirm_password:
         flash('Passwords do not match. Please try again.', 'error')
         return False
-        
-    if len(password) < 8:
-        flash("Password must be at least 8 characters long.", "error")
+    
+    normalized_password = re.sub(r'\s+', ' ', password).strip()
+    
+    if len(normalized_password) < 12:
+        flash("Password must be at least 12 characters long after combining multiple spaces.", "error")
         return False
     
-    if not re.search(r"[A-Z]", password):
-        flash("Password must contain at least one uppercase letter.", "error")
+    if len(normalized_password) > 128:
+        flash("Password cannot be more than 128 characters long.", "error")
         return False
     
-    if not re.search(r"[a-z]", password):
-        flash("Password must contain at least one lowercase letter.", "error")
-        return False
-    
-    if not re.search(r"\d", password):
-        flash("Password must contain at least one number.", "error")
-        return False
-    
-    if not re.search(r"[!@#$%^&*(),.?\":{}|<>]", password):
-        flash("Password must contain at least one special character.", "error")
+    if not all(character.isprintable() for character in password):
+        flash("Password contains non-printable characters.", "error")
         return False
     
     return True
+    
 
 def validate_email(email):
     email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
@@ -92,3 +89,11 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def validate_captcha(captcha_response):
+    payload = {
+        'secret': Config.RECAPTCHA_SECRET_KEY ,
+        'response': captcha_response
+    }
+    response = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload)
+    result = response.json()
+    return result.get('success', False)

@@ -19,6 +19,7 @@ def calculate_totals(cart_items):
 @login_required
 def cart_page():
     user_id = session['user_id']
+
     
     try:
         user = get_user_by_id(user_id)
@@ -103,6 +104,7 @@ def update_cart():
         flash('Cart updated successfully.', 'success')
         
     except Exception as e:
+        
         db.session.rollback()
         flash(f'Error updating cart: {str(e)}', 'error')
 
